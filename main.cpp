@@ -6,11 +6,16 @@
 #include "my_memcpy.h"
 #include "word_counter.h"
 
+//#define memcpy
 #define word_counter
 
 void printTime(std::string name, clock_t begin, clock_t end, int divisor) {
-    std::cout << "> " << name << " done in " << double(end - begin) / CLOCKS_PER_SEC / divisor << " <\n";
+    printf("> %s done in %f <\n", name.c_str(), double(end - begin) / CLOCKS_PER_SEC / divisor);
 }
+
+clock_t begin, end;
+std::string start = "Started %s testing...\n";
+std::string finish = "Finished %s testing.\n";
 
 int main(int argc, char* argv[])
 {
@@ -18,9 +23,8 @@ int main(int argc, char* argv[])
     size_t const N = 100000000;
     size_t const M = 100;
     std::vector<char> a(N), b(N);
-    clock_t begin, end;
 
-    std::cout << "Started memcpy testing...\n";
+    printf(start.c_str(), "memcpy");
 
     begin = clock();
     for (size_t i = 0; i != M; ++i)
@@ -35,12 +39,43 @@ int main(int argc, char* argv[])
     end = clock();
     printTime("naive", begin, end, 10);
 
-    std::cout << "Finished memcpy testing\n";
+    printf(finish.c_str(), "memcpy");
 #endif
 
 #ifdef word_counter
-    std::string text = " one two   three four    five  six  seven eight     nine ten eleven              twelve";
-    std::cout << count(text);
+    std::srand((uint)std::time(nullptr));
+    int n = std::rand() % 1000000 + 1000000;
+    std::string text = "";
+    for (int i = 1; i <= n; i++) {
+        text.append(std::string((uint)std::rand() % 10 + 1, ' '));
+        text.append(std::to_string(i));
+    }
+
+    printf(start.c_str(), "word counter");
+
+    printf("Counting %d words\n", n);
+    int m;
+
+    begin = clock();
+    m = count(text);
+    end = clock();
+    if (m != n) {
+        printf("error counting");
+        return 1;
+    }
+    printTime("count", begin, end, 1);
+
+    begin = clock();
+    m = naive_count(text);
+    end = clock();
+    if (m != n) {
+        printf("error counting");
+        return 1;
+    }
+    printTime("naive", begin, end, 1);
+
+    printf(finish.c_str(), "word counter");
 #endif
+
     return 0;
 }
