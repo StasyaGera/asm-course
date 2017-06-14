@@ -2,10 +2,9 @@
 #define ASM_COURSE_WORD_COUNTER_H
 
 #include <emmintrin.h>
-#include <chrono>
 
 const char ws = ' ';
-bool ws_seq = false;
+bool ws_seq;
 
 int naive_count(const char * text, size_t size) {
     int result = 0;
@@ -21,10 +20,12 @@ int naive_count(const char * text, size_t size) {
 }
 
 int naive_count(std::string input) {
+    ws_seq = false;
     return naive_count(input.c_str(), input.size()) + ((input.size() == 0 || input[0] == ws) ? 0 : 1);
 }
 
 int count(std::string input) {
+    ws_seq = false;
     const char *text = input.c_str();
     size_t size = input.size();
 
