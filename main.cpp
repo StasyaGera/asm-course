@@ -8,6 +8,7 @@
 
 //#define memcpy
 #define word_counter
+//#define debug
 
 void printTime(std::string name, clock_t begin, clock_t end, int divisor) {
     printf("> %s done in %f <\n", name.c_str(), double(end - begin) / CLOCKS_PER_SEC / divisor);
@@ -44,13 +45,15 @@ int main(int argc, char* argv[])
 
 #ifdef word_counter
     std::srand((uint)std::time(nullptr));
-    int n = std::rand() % 1000000 + 1000000;
+    int n = std::rand() % 1000000 + 10000000;
     std::string text = "";
+    text.append(std::string((uint)std::rand() % 5, ' '));
     for (int i = 1; i <= n; i++) {
-        text.append(std::string((uint)std::rand() % 10 + 1, ' '));
         text.append(std::to_string(i));
+        text.append(std::string((uint)std::rand() % 10 + 1, ' '));
     }
 
+//    printf("%s\n", text.c_str());
     printf(start.c_str(), "word counter");
 
     printf("Counting %d words\n", n);
@@ -60,7 +63,7 @@ int main(int argc, char* argv[])
     m = count(text);
     end = clock();
     if (m != n) {
-        printf("error counting");
+        printf("error counting, expected %d, found %d", n, m);
         return 1;
     }
     printTime("count", begin, end, 1);
@@ -69,12 +72,16 @@ int main(int argc, char* argv[])
     m = naive_count(text);
     end = clock();
     if (m != n) {
-        printf("error counting");
+        printf("error counting, expected %d, found %d", n, m);
         return 1;
     }
     printTime("naive", begin, end, 1);
 
     printf(finish.c_str(), "word counter");
+#endif
+
+#ifdef debug
+    printf("%d", count("one two three four five six sev en   "));
 #endif
 
     return 0;

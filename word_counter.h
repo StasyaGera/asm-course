@@ -21,14 +21,14 @@ int naive_count(const char * text, size_t size) {
 }
 
 int naive_count(std::string input) {
-    return naive_count(input.c_str(), input.size());
+    return naive_count(input.c_str(), input.size()) + ((input.size() == 0 || input[0] == ws) ? 0 : 1);
 }
 
 int count(std::string input) {
     const char *text = input.c_str();
     size_t size = input.size();
 
-    int result = text[0] == ws ? 0 : 1;
+    int result = (size == 0 || text[0] == ws) ? 0 : 1;
     size_t offset = (size_t)text % 16;
     if (offset != 0) {
         offset = 16 - offset;
@@ -38,7 +38,7 @@ int count(std::string input) {
     }
 
     __m128i spaces = _mm_set_epi8(ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws);
-    for (size; size >= 16; size -= 16) {
+    for (size; size >= 32; size -= 16) {
         __m128i curr, next;
         int32_t a;
 
