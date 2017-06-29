@@ -39,29 +39,38 @@ int count(std::string input) {
     }
 
     __m128i spaces = _mm_set_epi8(ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws, ws);
+    __m128i curr, next, tmp;
+    __asm__ volatile(
+            "movdqa     (%0), %1\n"
+    : "=r" (text),"=x" (next)
+    : "0" (text), "1" (next)
+    : "memory", "cc"
+    );
+
     for (size; size >= 32; size -= 16) {
-        __m128i curr, next;
         int32_t a;
 
         __asm__ volatile(
-                "movdqa     (%0), %1\n"
                 "add        $16,  %0\n"
+                "movdqa     %3, %1\n"
                 "movdqa     (%0), %2\n"
-                "pcmpeqb    %3, %1\n"
-                "pcmpeqb    %3, %2\n"
+                "movdqa     %2, %3\n"
+
+                "pcmpeqb    %4, %1\n"
+                "pcmpeqb    %4, %2\n"
                 "palignr    $1, %1, %2\n"
                 "pandn      %1, %2\n"
-                "pmovmskb   %2, %4\n"
+                "pmovmskb   %2, %5\n"
 
-        : "=r" (text), "=x" (curr), "=x" (next), "=x" (spaces), "=r" (a)
-        : "0" (text), "1" (curr), "2" (next), "3" (spaces), "4" (a)
+        : "=r" (text), "=x" (curr), "=x" (tmp), "=x" (next), "=x" (spaces), "=r" (a)
+        : "0" (text), "1" (curr), "2" (tmp), "3" (next), "4" (spaces), "5" (a)
         : "memory", "cc"
         );
 
         result += __builtin_popcount(a);
-        ws_seq = (text[-1] == ws);
     }
 
+    ws_seq = false;
     return result + naive_count(text, size);
 }
 
