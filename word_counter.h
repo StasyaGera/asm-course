@@ -6,8 +6,8 @@
 const char ws = ' ';
 bool ws_seq;
 
-int naive_count(const char * text, size_t size) {
-    int result = 0;
+size_t naive_count(const char * text, size_t size) {
+    size_t result = 0;
     for (size_t i = 0; i < size; i++) {
         if (text[i] == ws) {
             ws_seq = true;
@@ -19,12 +19,12 @@ int naive_count(const char * text, size_t size) {
     return result;
 }
 
-int naive_count(std::string input) {
+size_t naive_count(std::string input) {
     ws_seq = false;
     return naive_count(input.c_str(), input.size()) + ((input.size() == 0 || input[0] == ws) ? 0 : 1);
 }
 
-int count(std::string input) {
+size_t count(std::string input) {
     ws_seq = false;
     const char *text = input.c_str();
     size_t size = input.size();
@@ -42,30 +42,30 @@ int count(std::string input) {
     __m128i curr, next, tmp;
     __asm__ volatile(
             "movdqa     (%0), %1\n"
-    : "=r" (text),"=x" (next)
-    : "0" (text), "1" (next)
+            "pcmpeqb    %2, %1\n"
+    : "=r" (text),"=x" (next), "=x" (spaces)
+    : "0" (text), "1" (next), "2" (spaces)
     : "memory", "cc"
     );
 
     for (size; size >= 32; size -= 16) {
         int32_t a;
-
         __asm__ volatile(
                 "add        $16,  %0\n"
                 "movdqa     %3, %1\n"
                 "movdqa     (%0), %2\n"
+
+                "pcmpeqb    %4, %2\n"
                 "movdqa     %2, %3\n"
 
-                "pcmpeqb    %4, %1\n"
-                "pcmpeqb    %4, %2\n"
                 "palignr    $1, %1, %2\n"
                 "pandn      %1, %2\n"
                 "pmovmskb   %2, %5\n"
-
         : "=r" (text), "=x" (curr), "=x" (tmp), "=x" (next), "=x" (spaces), "=r" (a)
         : "0" (text), "1" (curr), "2" (tmp), "3" (next), "4" (spaces), "5" (a)
         : "memory", "cc"
         );
+
 
         result += __builtin_popcount(a);
     }
