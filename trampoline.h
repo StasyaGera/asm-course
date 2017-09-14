@@ -22,7 +22,7 @@ struct trampoline<R(Args ...)> {
     trampoline(F const& f)
         : obj(new F(f)), caller(&call<F>), deleter(&del<F>)
     {
-        id = allocator::malloc();
+        id = allocator::get_instance().malloc();
         writer w(id);
 
         if (counter<Args...>::INTEGER < 6) {
