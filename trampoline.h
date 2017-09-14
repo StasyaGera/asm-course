@@ -76,7 +76,7 @@ struct trampoline<R(Args ...)> {
         if (obj != nullptr) {
             deleter(obj);
         }
-        allocator::free(id);
+        allocator::get_instance().free(id);
     }
 
     trampoline& operator=(trampoline&& other) {
@@ -89,7 +89,7 @@ struct trampoline<R(Args ...)> {
 
     R (*get() const)(Args... args)
     {
-        return (R (*)(Args...))id;
+        return (R(*)(Args...))id;
     }
 
 private:
