@@ -23,13 +23,13 @@ struct allocator {
         return static_instance;
     }
 
-    static void* malloc() {
+    void* malloc() {
         void* ptr = tail;
         tail = *(void**)tail;
         return ptr;
     }
 
-    static void free(void* ptr) {
+    void free(void* ptr) {
         *(void**)ptr = tail;
         tail = (void**)ptr;
     }
@@ -38,11 +38,8 @@ private:
     static const size_t NODE_SZ = 256;
     static const size_t PAGE_SZ = 4096;
 
-    static void* tail;
-    static void* start;
+    void* tail;
+    void* start;
 };
-
-void* allocator::tail = nullptr;
-void* allocator::start = nullptr;
 
 #endif //ASM_COURSE_ALLOCATOR_H
